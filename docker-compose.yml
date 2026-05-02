@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  api-service:
+    build: ./api-service
+    container_name: api-service
+    ports:
+      - "5001:5001"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:5000
+    depends_on:
+      - auth-service
+    restart: unless-stopped
