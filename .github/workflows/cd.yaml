@@ -72,12 +72,6 @@ jobs:
             echo "Waiting for Kubernetes node..."
             kubectl wait --for=condition=Ready node/minikube --timeout=180s
 
-            echo "Enabling Minikube ingress addon..."
-            minikube addons enable ingress
-            kubectl rollout status deployment/ingress-nginx-controller \
-              -n ingress-nginx \
-              --timeout=180s
-
             echo "Checking cluster..."
             minikube status
             kubectl get nodes
@@ -97,7 +91,6 @@ jobs:
             kubectl apply -f k8s/auth-deployment.yaml
             kubectl apply -f k8s/api-deployment.yaml
             kubectl apply -f k8s/frontend-deployment.yaml
-            kubectl apply -f k8s/ingress.yaml
 
             echo "Updating deployment images..."
             kubectl set image deployment/auth-deployment \
@@ -117,15 +110,14 @@ jobs:
             kubectl rollout status deployment/api-deployment -n microservices --timeout=180s
             kubectl rollout status deployment/frontend-deployment -n microservices --timeout=180s
 
-            echo "Forwarding ingress controller port..."
-            pkill -f "kubectl port-forward.*ingress-nginx-controller.*8080:80" || true
+            echo "Forwarding frontend service port..."
+            pkill -f "kubectl port-forward.*frontend-service.*8080:80" || true
             nohup kubectl port-forward \
               --address 0.0.0.0 \
-              -n ingress-nginx \
-              service/ingress-nginx-controller \
+              -n microservices \
+              service/frontend-service \
               8080:80 \
-              > /tmp/minikube-ingress-port-forward.log 2>&1 &
+              > /tmp/frontend-service-port-forward.log 2>&1 &
 
             kubectl get pods -n microservices
             kubectl get svc -n microservices
-            kubectl get ingress -n microservices
