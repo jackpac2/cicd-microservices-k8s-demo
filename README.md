@@ -28,8 +28,6 @@ The final app exposes only the frontend. Browser traffic reaches the backend thr
 
 ## Demo
 
-> Add the project screenshots to `docs/images/` using the filenames below to render this section in GitHub.
-
 | CI/CD pipeline | Frontend protected route |
 | --- | --- |
 | ![CD pipeline deploying all services](docs/images/cd-deploy-frontend.png) | ![Los Santos themed protected route](docs/images/frontend-safehouse.png) |
