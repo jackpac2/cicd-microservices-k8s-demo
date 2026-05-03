@@ -111,13 +111,18 @@ jobs:
             kubectl rollout status deployment/frontend-deployment -n microservices --timeout=180s
 
             echo "Forwarding frontend service port..."
-            pkill -f "kubectl port-forward.*frontend-service.*8081:80" || true
+            if [ -f /tmp/frontend-service-port-forward.pid ]; then
+              kill "$(cat /tmp/frontend-service-port-forward.pid)" 2>/dev/null || true
+              rm -f /tmp/frontend-service-port-forward.pid
+            fi
+
             nohup kubectl port-forward \
               --address 0.0.0.0 \
               -n microservices \
               service/frontend-service \
               8081:80 \
               > /tmp/frontend-service-port-forward.log 2>&1 &
+            echo $! > /tmp/frontend-service-port-forward.pid
 
             kubectl get pods -n microservices
             kubectl get svc -n microservices
