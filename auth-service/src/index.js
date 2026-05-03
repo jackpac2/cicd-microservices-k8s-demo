@@ -1,12 +1,19 @@
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const JWT_SECRET = "auth-service-secret";
+const PORT = process.env.PORT || process.env.AUTH_SERVICE_PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
 const TOKEN_EXPIRES_IN = "1h";
 const SALT_ROUNDS = 10;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 const users = new Map();
 

@@ -1,9 +1,16 @@
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-const JWT_SECRET = "auth-service-secret";
+const PORT = process.env.PORT || process.env.API_SERVICE_PORT || 5001;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 app.use(express.json());
 

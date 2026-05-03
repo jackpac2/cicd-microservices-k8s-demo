@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: microservices
+data:
+  AUTH_SERVICE_URL: http://auth-service:5000
