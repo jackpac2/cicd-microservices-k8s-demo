@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: api-service
-          image: api-service:local
-          imagePullPolicy: Never
+          image: ghcr.io/jackpac2/api-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5001
 

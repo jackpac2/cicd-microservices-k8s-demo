@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: auth-service:local
-          imagePullPolicy: Never
+          image: ghcr.io/jackpac2/auth-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
 
