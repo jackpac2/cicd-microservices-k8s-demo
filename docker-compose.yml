@@ -18,3 +18,13 @@ services:
     depends_on:
       - auth-service
     restart: unless-stopped
+
+  frontend-service:
+    build: ./frontend-service
+    container_name: frontend-service
+    ports:
+      - "8081:80"
+    depends_on:
+      - auth-service
+      - api-service
+    restart: unless-stopped
