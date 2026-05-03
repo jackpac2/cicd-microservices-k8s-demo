@@ -17,6 +17,7 @@ jobs:
         service:
           - auth-service
           - api-service
+          - frontend-service
 
     steps:
       - name: Checkout repository
@@ -71,6 +72,12 @@ jobs:
             echo "Waiting for Kubernetes node..."
             kubectl wait --for=condition=Ready node/minikube --timeout=180s
 
+            echo "Enabling Minikube ingress addon..."
+            minikube addons enable ingress
+            kubectl rollout status deployment/ingress-nginx-controller \
+              -n ingress-nginx \
+              --timeout=180s
+
             echo "Checking cluster..."
             minikube status
             kubectl get nodes
@@ -86,8 +93,11 @@ jobs:
             kubectl apply -f k8s/api-config.yaml
             kubectl apply -f k8s/auth-service.yaml
             kubectl apply -f k8s/api-service.yaml
+            kubectl apply -f k8s/frontend-service.yaml
             kubectl apply -f k8s/auth-deployment.yaml
             kubectl apply -f k8s/api-deployment.yaml
+            kubectl apply -f k8s/frontend-deployment.yaml
+            kubectl apply -f k8s/ingress.yaml
 
             echo "Updating deployment images..."
             kubectl set image deployment/auth-deployment \
@@ -98,9 +108,24 @@ jobs:
               api-service=ghcr.io/${{ env.OWNER }}/api-service:${{ github.sha }} \
               -n microservices
 
+            kubectl set image deployment/frontend-deployment \
+              frontend-service=ghcr.io/${{ env.OWNER }}/frontend-service:${{ github.sha }} \
+              -n microservices
+
             echo "Waiting for rollouts..."
             kubectl rollout status deployment/auth-deployment -n microservices --timeout=180s
             kubectl rollout status deployment/api-deployment -n microservices --timeout=180s
+            kubectl rollout status deployment/frontend-deployment -n microservices --timeout=180s
+
+            echo "Forwarding ingress controller port..."
+            pkill -f "kubectl port-forward.*ingress-nginx-controller.*8080:80" || true
+            nohup kubectl port-forward \
+              --address 0.0.0.0 \
+              -n ingress-nginx \
+              service/ingress-nginx-controller \
+              8080:80 \
+              > /tmp/minikube-ingress-port-forward.log 2>&1 &
 
             kubectl get pods -n microservices
             kubectl get svc -n microservices
+            kubectl get ingress -n microservices

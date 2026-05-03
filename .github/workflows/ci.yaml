@@ -19,6 +19,7 @@ jobs:
         service:
           - auth-service
           - api-service
+          - frontend-service
 
     steps:
       - name: Checkout repository
